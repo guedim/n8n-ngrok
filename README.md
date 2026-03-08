@@ -7,7 +7,7 @@ Stack de automatización con n8n, PostgreSQL con pgvector, Redis y ngrok.
 | Servicio | Imagen | Puerto | Descripción |
 | -------- | ------ | ------ | ----------- |
 | **n8n** | `docker.n8n.io/n8nio/n8n` | `5678` | Motor de automatización y workflows (UI + webhook intake) |
-| **n8n-worker** | `docker.n8n.io/n8nio/n8n` | — | Worker que procesa los jobs encolados en Redis |
+| **n8n-worker** | `docker.n8n.io/n8nio/n8n` | — | 3 workers en paralelo que procesan los jobs encolados en Redis |
 | **PostgreSQL** | `pgvector/pgvector:pg16` | `5432` | Base de datos principal con soporte de vectores (pgvector) para RAG |
 | **Redis** | `redis/redis-stack` | `6379` / `8001` | Cola de ejecuciones (Bull queue) + Redis Insight UI |
 | **ngrok** | `ngrok/ngrok` | `4040` | Túnel HTTPS para exponer n8n públicamente con dominio estático |
@@ -149,7 +149,7 @@ ngrok → n8n (encola job en Redis) → n8n-worker (ejecuta job) → guarda resu
 ```
 
 - El proceso **n8n** gestiona la UI, recibe webhooks y encola las ejecuciones en Redis.
-- El proceso **n8n-worker** lee la cola y ejecuta los workflows.
+- Los **3 procesos n8n-worker** leen la cola en paralelo y ejecutan los workflows. Redis distribuye los jobs automáticamente entre ellos.
 - **PostgreSQL** almacena workflows, credenciales e historial de ejecuciones de forma persistente.
 - **Redis** solo mantiene la cola temporal de jobs.
 
