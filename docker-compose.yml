@@ -68,7 +68,7 @@ services:
     command: worker
     env_file: .env
     deploy:
-      replicas: 3
+      replicas: ${QUEUE_WORKERS}
     volumes:
       - n8n_data:/home/node/.n8n
       - n8n_custom_nodes:/home/node/.n8n/custom
